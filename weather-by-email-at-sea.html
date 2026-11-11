@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weather by Email at Sea - 10-day ship forecast with only company email | Trozovka (John Winsome Munar)</title>
+<meta name="description" content="How Master Mariner John Winsome Munar (Trozovka) gets a 10-day marine weather forecast (GRIB files and weather fax style charts, GFS and ECMWF) on a tramp ship that only has company email.">
+<meta name="author" content="John Winsome Munar">
+<link rel="canonical" href="https://trozovka.github.io/weather-by-email-at-sea.html">
+<meta property="og:title" content="Weather by Email at Sea">
+<meta property="og:description" content="How Master Mariner John Winsome Munar (Trozovka) gets a 10-day marine weather forecast (GRIB files and weather fax style charts, GFS and ECMWF) on a tramp ship that only has company email.">
+<meta property="og:url" content="https://trozovka.github.io/weather-by-email-at-sea.html">
+<meta property="og:type" content="article">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Weather by Email at Sea: how I get a 10-day forecast on a ship that only has company email",
+ "description":"How Master Mariner John Winsome Munar (Trozovka) gets a 10-day marine weather forecast (GRIB files and weather fax style charts, GFS and ECMWF) on a tramp ship that only has company email.","datePublished":"2026-11-11","inLanguage":"en",
+ "author":{"@type":"Person","name":"John Winsome Munar","alternateName":"Trozovka","jobTitle":"Master Mariner","url":"https://trozovka.github.io/"},
+ "url":"https://trozovka.github.io/weather-by-email-at-sea.html",
+ "license":"https://creativecommons.org/licenses/by/4.0/",
+ "keywords":"marine weather, GRIB, email, ship, weather fax, ECMWF, GFS, OpenCPN, Saildocs, seafarers, tramp ship"}
+</script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6672; --accent:#2f6fde; --border:#dde1e6; --code:#eef1f4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1c2024; --ink:#e8e9e7; --muted:#9aa3ab; --accent:#6ea0ff; --border:#2b3035; --code:#23282d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 -apple-system,"Segoe UI",Roboto,Arial,sans-serif; padding:2rem 1rem 4rem; }
+  main { max-width:46rem; margin:0 auto; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .4rem; }
+  .sub { font-size:1.1rem; margin:0 0 .6rem; }
+  .by { color:var(--muted); margin:0 0 1.5rem; }
+  h2 { font-size:1.3rem; margin:2.2rem 0 .6rem; padding-top:.4rem; border-top:1px solid var(--border); }
+  a { color:var(--accent); }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45; }
+  code { background:var(--code); padding:.08rem .3rem; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:.6rem 0 1rem; font-size:.95rem; display:block; overflow-x:auto; }
+  th, td { border:1px solid var(--border); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  hr { border:0; border-top:1px solid var(--border); margin:2rem 0; }
+  .back { display:inline-block; margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="https://trozovka.github.io/">&larr; Trozovka (John Winsome Munar)</a>
+<h1>Weather by Email at Sea</h1>
+<p class="sub"><strong>How I get a 10-day weather forecast on a ship that only has company email</strong></p>
+<p class="by">By <strong>John Winsome Munar (Trozovka)</strong>, Master Mariner · November 2026 ·
+<a href="https://github.com/Trozovka/weather-by-email-at-sea">Also on GitHub</a></p>
+<p>This is a write-up of how I solved a real problem on board: getting a useful
+10-day forecast with isobars and wind, when the weather fax is broken, the
+charterer's weather service is unreliable, and the only link to the outside
+world is the ship's company email.</p>
+<p>I built a working system for my own use. The tool itself stays private. This
+page explains the ideas behind it, in enough detail that another seafarer (or a
+developer helping one) can understand every part and build their own.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-the-problem">The problem</a></li>
+<li><a href="#2-what-i-needed">What I needed</a></li>
+<li><a href="#3-why-grib-files">Why GRIB files</a></li>
+<li><a href="#4-where-the-forecast-comes-from">Where the forecast comes from</a></li>
+<li><a href="#5-try-the-free-service-first-saildocs">Try the free service first: Saildocs</a></li>
+<li><a href="#6-my-setup-in-one-picture">My setup in one picture</a></li>
+<li><a href="#7-the-mailbox-is-the-memory">The mailbox is the memory</a></li>
+<li><a href="#8-commands-by-email-and-keeping-strangers-out">Commands by email, and keeping strangers out</a></li>
+<li><a href="#9-a-forecast-area-that-follows-the-ship">A forecast area that follows the ship</a></li>
+<li><a href="#10-keeping-the-files-small">Keeping the files small</a></li>
+<li><a href="#11-tropical-cyclones">Tropical cyclones</a></li>
+<li><a href="#12-weather-fax-style-charts">Weather fax style charts</a></li>
+<li><a href="#13-getting-it-through-the-ships-email">Getting it through the ship's email</a></li>
+<li><a href="#14-sending-orders-from-the-ship">Sending orders from the ship</a></li>
+<li><a href="#15-reading-it-with-no-internet">Reading it with no internet</a></li>
+<li><a href="#16-living-on-300-mb-a-week">Living on 300 MB a week</a></li>
+<li><a href="#17-cost-and-limits">Cost and limits</a></li>
+<li><a href="#18-what-i-learned">What I learned</a></li>
+<li><a href="#19-disclaimer">Disclaimer</a></li>
+</ol>
+<hr />
+<h2 id="1-the-problem">1. The problem</h2>
+<p>I command a tramp ship. That means no fixed route: the next port can change
+while we are in the middle of an ocean. Good weather planning matters more on a
+tramp than on a liner, because I often have to decide a route a week ahead, and
+change it when a low or a typhoon is coming.</p>
+<p>On board I had:</p>
+<ul>
+<li>a weather fax receiver that was not working,</li>
+<li>a weather routing service from the charterers that was late and unreliable,</li>
+<li>company email on the bridge PC, and nothing else from shore,</li>
+<li>sometimes a Starlink Wi-Fi allowance of <strong>300 MB per week</strong> for the crew,
+  which is gone fast if you open a normal weather website.</li>
+</ul>
+<p>Apps like Windy and Ventusky are excellent, but they need a real internet
+connection. On my ship they were useless.</p>
+<h2 id="2-what-i-needed">2. What I needed</h2>
+<p>I wrote the requirements down before writing any code:</p>
+<ul>
+<li><strong>A real forecast, not news.</strong> At least 7 days ahead, better 10, so I can
+  change course days before bad weather arrives.</li>
+<li><strong>Isobars and wind.</strong> Pressure systems (highs, lows, fronts showing in the
+  isobars) and wind on the Beaufort scale.</li>
+<li><strong>Delivered by plain email.</strong> No app that needs internet at sea.</li>
+<li><strong>Small.</strong> A few hundred KB a day at most.</li>
+<li><strong>Following the voyage.</strong> I should give the passage plan once, before
+  departure, and then only a position now and then.</li>
+<li><strong>Easy to enter positions.</strong> Degrees and minutes with decimals, N/S, E/W,
+  like on a chart. No strange codes to type.</li>
+<li><strong>Two independent forecasts.</strong> So I can compare them, the same way I would
+  never trust a single position fix.</li>
+<li><strong>Zero cost to the company.</strong></li>
+</ul>
+<h2 id="3-why-grib-files">3. Why GRIB files</h2>
+<p>GRIB is the standard file format for weather model data. A GRIB file is not a
+picture. It is a grid of numbers: pressure and wind at every point, for every
+forecast hour.</p>
+<p>That sounds less friendly than a picture, but for a ship it is much better:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>GRIB file</th>
+<th>Picture (screenshot or fax)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Size for 10 days</td>
+<td>about 100 KB</td>
+<td>30 to 1000 KB <strong>per picture</strong></td>
+</tr>
+<tr>
+<td>Forecast times</td>
+<td>every 12 or 24 hours, with a slider</td>
+<td>one moment per picture</td>
+</tr>
+<tr>
+<td>Zoom, units</td>
+<td>zoom anywhere, Beaufort or knots</td>
+<td>fixed</td>
+</tr>
+<tr>
+<td>Works offline</td>
+<td>yes, once received</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>You open GRIB files in free chart software such as <strong>OpenCPN</strong> (with its GRIB
+plug-in) or <strong>XyGrib</strong>. These show isobars, wind barbs and a time slider, all
+offline.</p>
+<p>Later I also added black-and-white chart pictures, because a picture can be
+read on a phone in two seconds. More on that in <a href="#12-weather-fax-style-charts">section 12</a>.</p>
+<h2 id="4-where-the-forecast-comes-from">4. Where the forecast comes from</h2>
+<p>Two weather models are free and allowed for this use:</p>
+<ul>
+<li><strong>GFS</strong> from NOAA (USA). Public domain. Available through NOAA's NOMADS
+  service, which can cut out just the area and the fields you ask for.</li>
+<li><strong>ECMWF</strong> (European centre). Their open data is free under the CC BY 4.0
+  licence, which only asks you to credit ECMWF. ECMWF is often the more
+  accurate model several days ahead.</li>
+</ul>
+<p><strong>Why two models matter.</strong> At first I compared my own weather app with an
+email service, and then noticed both used GFS. That is not a real comparison:
+if GFS is wrong about a typhoon track, both are wrong together. A true second
+opinion needs a different model. When GFS and ECMWF agree, I trust the forecast
+more. When they disagree, I plan with extra margin. Professional weather routers
+work the same way.</p>
+<p>The fields I use are only three: mean sea level pressure (for isobars) and the
+two wind components at 10 metres (for wind speed and direction).</p>
+<h2 id="5-try-the-free-service-first-saildocs">5. Try the free service first: Saildocs</h2>
+<p>Before building anything, try <strong>Saildocs</strong>. It is a free service run since 1999
+by the people behind Sailmail. You send a short request by email and it replies
+with a GRIB file. It can also send a forecast every day by itself
+(a subscription).</p>
+<p>A request looks like this (sent as plain text, signature removed):</p>
+<pre><code>send gfs:0N,30S,30W,10E|1,1|0,12..240|PRMSL,WIND
+</code></pre>
+<p>That means: GFS model, a box from 0° to 30°S and 30°W to 10°E, a 1-degree grid,
+every 12 hours out to 240 hours (10 days), pressure and wind. To get one every
+day, start the line with <code>sub</code> instead of <code>send</code>.</p>
+<p>Saildocs' website shows a "not secure" warning in the browser because it uses
+plain <code>http</code>. That has nothing to do with the email service and you never give
+a password there.</p>
+<p>For many ships, Saildocs is enough. I built my own because I wanted three
+things it does not do: a forecast area that <strong>moves with my passage plan</strong>,
+<strong>two models</strong> side by side, and <strong>several recipients</strong> (ship email and my own
+email) from one setup.</p>
+<h2 id="6-my-setup-in-one-picture">6. My setup in one picture</h2>
+<pre><code> Me (phone or laptop)
+   │  email: passage plan, position, commands
+   ▼
+ A mailbox used only by the program
+   ▲
+   │  reads commands, sends results
+ A small program run on a free schedule in the cloud
+   │  every 3 hours: answer new commands
+   │  once a day:   download GFS + ECMWF, cut my area,
+   │                list tropical cyclones, draw charts
+   ▼
+ Email to my recipients: ship email + my own email
+   ├─ Forecast email: GRIB files + text
+   └─ Charts email:   black-and-white pictures
+</code></pre>
+<p>Nothing runs on the ship except email. Nothing runs at home either: the program
+runs on a free scheduled job in the cloud (I use GitHub Actions, in a private
+repository). My laptop can be switched off for months.</p>
+<p>The program is written in Python. It uses the ecCodes library (from ECMWF) to
+read and write GRIB files, and matplotlib with Cartopy to draw the charts.</p>
+<h2 id="7-the-mailbox-is-the-memory">7. The mailbox is the memory</h2>
+<p>The program keeps <strong>no database</strong>. Every time it runs, it reads all recent
+command emails in its mailbox, oldest first, and replays them:</p>
+<ul>
+<li>a passage plan replaces the old one,</li>
+<li>a position report updates the ship's position,</li>
+<li>"add recipient", "stop", "start" and so on change the settings.</li>
+</ul>
+<p>At the end of the replay it knows the current state. This has two big
+advantages:</p>
+<ol>
+<li><strong>No ship position is stored anywhere in the code.</strong> The code repository
+   could be made public by mistake one day and there would still be nothing
+   in it about where my ship is or was. In risky waters this matters.</li>
+<li><strong>Nothing to break.</strong> There is no state file to corrupt. If something goes
+   wrong, the next run rebuilds everything from the emails.</li>
+</ol>
+<p>After a command email is answered, the program puts a label on it in the
+mailbox, so it sends only one confirmation per command.</p>
+<h2 id="8-commands-by-email-and-keeping-strangers-out">8. Commands by email, and keeping strangers out</h2>
+<p>The commands are plain lines of text. For example:</p>
+<pre><code>GRIBPOST PLAN
+WP 14-35.2S 048-12.7W 2026-12-01 06:00
+WP 34-21.0S 018-28.0E 2026-12-10 12:00
+TO captain@example.com
+END
+CODE xxxxxx
+</code></pre>
+<pre><code>GRIBPOST POS 12-15.4S 080-02.1E 2026-12-05 08:00
+CODE xxxxxx
+</code></pre>
+<p>Positions are written the way a navigator writes them: degrees, then minutes
+with a decimal, then the hemisphere. All times are UTC. I never type these by
+hand: a planner page writes them for me (<a href="#14-sending-orders-from-the-ship">section 14</a>).</p>
+<p>The program ignores lines it does not understand, and it ignores quoted text,
+so company disclaimers, signatures and old replies do not confuse it.</p>
+<p><strong>Keeping strangers out.</strong> Anyone who learns the program's address could send it
+a fake plan. Two checks stop that:</p>
+<ol>
+<li><strong>Allowed senders.</strong> Only addresses on an allow list are obeyed. The list
+   starts with my own email. I can add the ship's email by sending an "allow"
+   command from an address that is already allowed.</li>
+<li><strong>A command code.</strong> Every command email must contain a secret code line.
+   Email "From" addresses can be faked; the code cannot be guessed.</li>
+</ol>
+<p>If an allowed sender gets the code wrong, the program replies and says why
+("no code line found" or "code does not match"). Strangers get no reply at all.</p>
+<p><strong>The mailbox password.</strong> The program logs in to its mailbox with an app
+password (Gmail calls it that). An app password opens the <strong>whole mailbox</strong>, so
+the program must have a mailbox of its own that holds nothing else. Never give
+a program the password of your personal email. Two traps I hit:</p>
+<ul>
+<li>Gmail only offers app passwords when 2-step verification is on.</li>
+<li><strong>Changing the account password deletes all app passwords.</strong> The program then
+  stops working until you make a new one.</li>
+</ul>
+<p>The passwords live in the cloud service's secret store, never in the code.</p>
+<h2 id="9-a-forecast-area-that-follows-the-ship">9. A forecast area that follows the ship</h2>
+<p>This is the part that makes the forecast useful on a tramp ship.</p>
+<p><strong>The passage plan.</strong> Before departure I send the waypoints with ETAs. To save
+typing, the planner can fill in all ETAs from a departure time and a planned
+speed, using great-circle distances between waypoints. It can also import a
+route file exported from OpenCPN (GPX) or from an ECDIS (RTZ).</p>
+<p><strong>Where is the ship now?</strong> Between waypoints the program interpolates the
+position by time. That gives a planned position for any moment.</p>
+<p><strong>Correcting with a position report.</strong> Ships are early or late. When I send a
+position, the program finds the closest point on the planned route, looks up
+the time the plan expected the ship to be there, and works out the difference:</p>
+<pre><code>delay = time of my report − planned time at the closest point on the route
+</code></pre>
+<p>It then shifts the whole remaining schedule by that delay. If I report being
+two days late at a waypoint, every later ETA moves two days. If I skip
+reporting for a few days, the plan alone still gives a reasonable estimate.</p>
+<p><strong>The forecast box.</strong> Each day the program takes the estimated track for the
+next 72 hours, draws a box around it, and adds margin: 8° of latitude and 10°
+of longitude on each side, so weather systems are seen before they arrive. The
+box is kept at least 20° by 25° and at most about 40° by 50°, and is snapped to
+whole degrees.</p>
+<p><strong>The date line.</strong> A route that crosses 180° must not turn into a box that wraps
+the whole world. Longitudes are "unwrapped" along the track (so 179°E is
+followed by 181°E instead of 179°W), the box is computed, and only at the end
+converted back. Most GRIB data is stored from 0° to 360°, while navigators use
+180°W to 180°E, so this conversion is a classic source of bugs. I tested it on
+purpose with boxes across the date line.</p>
+<p>Once a week, and when a new plan arrives, a second, coarser file covers the
+whole remaining route (2° grid), so I also see the big picture.</p>
+<h2 id="10-keeping-the-files-small">10. Keeping the files small</h2>
+<p>Size decides whether the forecast gets through a ship's email at all. What I
+do:</p>
+<ul>
+<li><strong>1° grid.</strong> Fine enough for synoptic planning, which is what a 10-day forecast
+  is for anyway.</li>
+<li><strong>Fewer time steps further out.</strong> Every 12 hours for the first 5 days, then
+  every 24 hours to day 10. That is 16 steps instead of 41. Detail far ahead is
+  not reliable anyway.</li>
+<li><strong>Three fields only.</strong> Pressure, and the two wind components.</li>
+<li><strong>Cut on the server.</strong> NOAA's NOMADS service cuts GFS to my box before
+  sending. ECMWF's open data comes as whole-world files of about 2 MB per time
+  step; the program downloads them in the cloud (where data is free) and cuts
+  them down there.</li>
+<li><strong>Sensible precision.</strong> The cut files are stored with GRIB "complex packing"
+  (the same method NOAA uses for GFS, so every viewer can read it) at 10 bits
+  per value. For pressure that is a few pascals, for wind a few hundredths of a
+  m/s. Far finer than any chart needs.</li>
+</ul>
+<p>Typical sizes per day:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GFS, my area, 10 days</td>
+<td>about 110 KB</td>
+</tr>
+<tr>
+<td>ECMWF, my area, 10 days</td>
+<td>about 75 KB</td>
+</tr>
+<tr>
+<td>ECMWF, whole route, 2° (weekly)</td>
+<td>about 40 KB</td>
+</tr>
+<tr>
+<td>Four chart pictures</td>
+<td>about 160 KB</td>
+</tr>
+</tbody>
+</table>
+<p>I also tried zipping the GRIB files (bzip2). It saved almost nothing, because
+GRIB is already packed tightly. Not worth the trouble for the viewer.</p>
+<h2 id="11-tropical-cyclones">11. Tropical cyclones</h2>
+<p>At the top of every forecast email there is a short tropical cyclone check:</p>
+<ul>
+<li>The main list comes from <strong>GDACS</strong> (the UN and European Commission disaster
+  alert system), which covers all ocean basins and gives positions.</li>
+<li>For the Atlantic and Eastern Pacific, <strong>NHC</strong> is added as a cross-check.</li>
+<li>For every active storm the program calculates the great-circle distance to my
+  expected track. Anything within <strong>1,500 nautical miles</strong> gets a clear warning
+  line at the top. Storms elsewhere are listed in one line.</li>
+</ul>
+<p>This is a heads-up, not a warning service. Official tropical cyclone warnings
+still come from GMDSS: SafetyNET and NAVTEX.</p>
+<h2 id="12-weather-fax-style-charts">12. Weather fax style charts</h2>
+<p>GRIB files need chart software. Sometimes I just want to look at the weather on
+my phone in two seconds, like a weather fax. So the program also draws
+<strong>black-and-white surface charts</strong> and sends them in a separate email.</p>
+<p>Each chart page has two panels, one above the other, which fits a phone screen.
+There are 4 pages a day: analysis and +24 hours, +48 and +72, +96 and +120,
++168 and +240 (day 7 and day 10).</p>
+<p>What makes them useful:</p>
+<ul>
+<li><strong>Each panel is centred on where the ship will be at that time.</strong> The day-7
+  panel shows the weather around my day-7 position, not around today's.</li>
+<li><strong>Isobars every 4 hPa</strong>, labelled, like a fax chart.</li>
+<li><strong>H and L centres.</strong> Found automatically: a point is a centre if it is the
+  highest (or lowest) value in a window of about 6° around it, and at least
+  2.5 hPa above (or below) the average of that window. Before this, the pressure
+  field is lightly smoothed, because pressure "reduced to sea level" over high
+  land is noisy and would give fake highs over every mountain and island. The
+  edges are handled so that a real low near the border of the chart is still
+  found.</li>
+<li><strong>Wind barbs in knots</strong>, the standard symbols: long line 10 knots, short line
+  5, flag 50. On the southern hemisphere the barbs are drawn on the correct
+  side.</li>
+<li><strong>The passage plan</strong> as a dashed line, <strong>the ship</strong> as a circle with a cross,
+  and <strong>tropical cyclones</strong> marked on the first panel.</li>
+<li><strong>Grey land, black lines, white sea.</strong> The pictures are reduced to 4 shades of
+  grey, so each page is only about 30 to 40 KB.</li>
+</ul>
+<p>The title of every panel gives the model, the forecast hour, the valid time and
+the estimated ship position, so a page is never confused with another day.</p>
+<h2 id="13-getting-it-through-the-ships-email">13. Getting it through the ship's email</h2>
+<p>Ship email systems often have size limits and filters. Some things that help:</p>
+<ul>
+<li><strong>Two separate emails:</strong> one with the GRIB files, one with the pictures. If the
+  company blocks pictures, the GRIB email still arrives.</li>
+<li><strong>Splitting.</strong> If the GRIB email gets bigger than a set limit, the program
+  sends each file in its own email instead of one big one.</li>
+<li><strong>Several recipients.</strong> I send to the ship's email and to my own email. If the
+  company system blocks it or is down, I can still read it on my phone when we
+  have Starlink or a local SIM.</li>
+<li><strong>Recognisable subject lines</strong>, so the ship's IT can allow them, and so I can
+  find them.</li>
+<li><strong>Ask IT once</strong> to allow the sender and the attachment types (.grb2, .png).</li>
+</ul>
+<h2 id="14-sending-orders-from-the-ship">14. Sending orders from the ship</h2>
+<p>At sea my laptop has no internet. The ship's company email runs on the bridge
+PC, and my phone has a small Starlink allowance. So the tool to write commands
+must work <strong>completely offline</strong>.</p>
+<p><strong>The planner page.</strong> A single HTML file that runs in any browser with no
+internet. It has:</p>
+<ul>
+<li>boxes for degrees, minutes (with decimal) and N/S or E/W, for each waypoint,</li>
+<li>a button to fill ETAs from departure time and speed,</li>
+<li>route import from GPX or RTZ files,</li>
+<li>a "today's position" form with a "now" button,</li>
+<li>buttons for the other commands (add recipient, send now, stop, charts on/off).</li>
+</ul>
+<p>It checks the input (minutes must be below 60, ETAs must go forward in time,
+and so on) and then either opens the email app with the message ready, or copies
+the message so I can paste it into any email program, including the company
+email on the bridge PC.</p>
+<p><strong>The phone app.</strong> On Android I wrapped the same page in a tiny app. It
+<strong>requests no permissions at all</strong>, not even internet. It only hands the
+finished message to the phone's email app (or the clipboard). The message is a
+few KB, so sending it over Starlink costs almost nothing.</p>
+<p>The command code and the draft plan are saved only on that device.</p>
+<h2 id="15-reading-it-with-no-internet">15. Reading it with no internet</h2>
+<p>A common misunderstanding: OpenCPN does <strong>not</strong> need internet to show GRIB files.
+It needs internet only to download them, and I get them by email instead.</p>
+<p>At sea I:</p>
+<ol>
+<li>open the forecast email on the phone and save the attachments,</li>
+<li>copy them to the laptop with a USB cable,</li>
+<li>open them in OpenCPN or XyGrib, offline.</li>
+</ol>
+<p>The chart pictures I simply look at on the phone.</p>
+<h2 id="16-living-on-300-mb-a-week">16. Living on 300 MB a week</h2>
+<p>A tiny forecast is pointless if the phone burns the whole data allowance in the
+background. On my Android phone I use a firewall app (Rethink DNS + Firewall,
+which needs no root) with two modes:</p>
+<ul>
+<li><strong>At sea:</strong> only a short list of apps may use the ship's Wi-Fi: email, a couple
+  of browsers, my navigation and weather tools, and the few banking apps I need
+  even in the middle of the ocean. Everything else is blocked on Wi-Fi.
+  Mobile data is left open for local SIM cards in port.</li>
+<li><strong>At home:</strong> everything is allowed, only ads and known-bad sites are blocked.</li>
+</ul>
+<p>Two lessons from setting this up:</p>
+<ul>
+<li><strong>Don't use huge blocklists.</strong> My first setup had over a hundred lists, and
+  some of them blocked Google services, the Play Store, even WhatsApp. A small
+  set (malware, scams, spam, spyware, a standard privacy list, adult and
+  gambling) is enough and breaks nothing.</li>
+<li><strong>Don't mark the ship's Wi-Fi as "metered"</strong> if your firewall rules are set
+  per Wi-Fi: some firewalls then treat it like mobile data and let every app
+  through.</li>
+</ul>
+<p>The daily forecast plus charts is about 300 to 400 KB, roughly 2.5 MB a week:
+under 1% of a 300 MB allowance.</p>
+<h2 id="17-cost-and-limits">17. Cost and limits</h2>
+<p><strong>Cost:</strong> nothing. The weather data is free, the scheduled cloud job is within
+the free allowance of a private repository (a daily run takes about two
+minutes), and a normal free email account is the mailbox.</p>
+<p><strong>Limits:</strong></p>
+<ul>
+<li>It is model output, not a forecaster's analysis. No fronts are drawn on the
+  charts, because a computer guessing fronts and drawing them as fact would be
+  worse than no fronts.</li>
+<li>A 1° grid does not show small features such as local sea breezes or squalls.</li>
+<li>Day 7 to day 10 forecasts are guidance for planning, not for decisions on
+  their own. That is exactly why I compare two models.</li>
+<li>The cloud job runs on a schedule that may be delayed now and then by the
+  provider. A forecast that has not gone out in 26 hours is sent at the next
+  check, so a missed run does not mean a missed day.</li>
+</ul>
+<h2 id="18-what-i-learned">18. What I learned</h2>
+<ul>
+<li><strong>Write the requirements first.</strong> "Forecast, not news" and "zero cost to the
+  company" decided half of the design.</li>
+<li><strong>Test the simplest option before building.</strong> For many ships Saildocs alone is
+  enough.</li>
+<li><strong>Redundancy is seamanship.</strong> Two models, two delivery routes (company email
+  and personal email), two ways to view (GRIB and pictures).</li>
+<li><strong>Keep positions out of code and logs.</strong> The mailbox holds the state; the code
+  holds no ship data.</li>
+<li><strong>Small details bite.</strong> Longitude conventions (0 to 360 against −180 to 180),
+  app passwords disappearing after a password change, and over-eager blocklists
+  each cost me time.</li>
+<li><strong>Test the whole chain for real.</strong> Unit tests passed long before the first real
+  email arrived. Only sending a real plan and opening a real file proves it works.</li>
+</ul>
+<h2 id="19-disclaimer">19. Disclaimer</h2>
+<p>This is how I solved my own problem. It is not a certified weather service and
+not a replacement for official forecasts and warnings (GMDSS, SafetyNET,
+NAVTEX) or for a professional weather routing service where one is required.
+Always use your own judgement as a seafarer.</p>
+<p>Data credits: NOAA/NCEP GFS (public domain). ECMWF open data, CC BY 4.0.
+GDACS (UN/EC). NHC (NOAA).</p>
+<hr />
+<p><strong>About the author.</strong> John Winsome Munar (Trozovka) is a Master Mariner who
+builds practical software for seafarers, including WX weather apps for slow
+ship internet, PocketMOB Alert (man-overboard alarm), PocketVDR (voyage data
+recorder) and OpenCPN GPS Server. More at <a href="https://trozovka.github.io">trozovka.github.io</a>.</p>
+<p>Text © 2026 John Winsome Munar. Shared under
+<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>: you may share and
+adapt it with credit.</p>
+</main>
+</body>
+</html>
