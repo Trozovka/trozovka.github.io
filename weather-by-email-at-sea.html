@@ -279,6 +279,38 @@ the time the plan expected the ship to be there, and works out the difference:</
 <p>It then shifts the whole remaining schedule by that delay. If I report being
 two days late at a waypoint, every later ETA moves two days. If I skip
 reporting for a few days, the plan alone still gives a reasonable estimate.</p>
+<p><strong>How often to report.</strong> The plan gives a dead-reckoning style estimate: position by
+time along the route. Because the forecast box has 8° to 10° of margin and covers three
+days ahead, an estimate that is a few hours off doesn't change the forecast. My routine:</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>What I send</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Before departure</td>
+<td>The passage plan (once)</td>
+</tr>
+<tr>
+<td>Normal passage, on schedule</td>
+<td>Noon position once a day if convenient, at least every 2 to 3 days</td>
+</tr>
+<tr>
+<td>More than about 6 hours ahead of or behind the plan</td>
+<td>A position report straight away</td>
+</tr>
+<tr>
+<td>Route changed (new port, weather diversion)</td>
+<td>A <strong>new passage plan</strong>, not just a position</td>
+</tr>
+</tbody>
+</table>
+<p>A position report only corrects the timing along the planned track. If the ship leaves
+that track, the forecast box must follow a new route, so a new plan is the right message.
+Each report is two lines and a few hundred bytes.</p>
 <p><strong>The forecast box.</strong> Each day the program takes the estimated track for the
 next 72 hours, draws a box around it, and adds margin: 8° of latitude and 10°
 of longitude on each side, so weather systems are seen before they arrive. The
