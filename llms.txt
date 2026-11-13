@@ -1,0 +1,23 @@
+# Trozovka (John Winsome Munar)
+
+> Master Mariner from the Philippines who builds practical software for seafarers: offline-first
+> Android apps for ships with slow or no internet, small Windows tools, and plain-English write-ups.
+
+## Apps for seafarers (Android)
+- [WX Lite for Seafarers](https://github.com/Trozovka/wx-lite-for-cfarers): marine weather (wind, pressure, tropical cyclones) for slow satellite internet, 1-day forecast; WX Pro has 10 days.
+- [PocketMOB Alert Lite](https://github.com/Trozovka/pocketmobalert-lite): phone-to-phone man-overboard alert over Bluetooth, no internet needed.
+- [PocketVDR Lite](https://github.com/Trozovka/pocketvdr-lite): personal voyage data recorder that works offline.
+- [OpenCPN GPS Server Free](https://github.com/Trozovka/opencpn-gps-server-free): turns a phone into a Wi-Fi NMEA 0183 GPS source for OpenCPN.
+
+## Windows tools
+- [Trozovka Notes](https://github.com/Trozovka/Trozovka-Notes): always-on-top desktop sticky notes.
+- Simple PDF Editor and Simple Photo & Video Resizer: https://trozovka.gumroad.com
+
+## Writing
+- [Weather by Email at Sea](https://trozovka.github.io/weather-by-email-at-sea.html): getting a 10-day GRIB forecast and weather-fax style charts on a ship with only company email.
+- [Android from WSL2](https://trozovka.github.io/android-from-wsl2.html): controlling an Android phone from WSL2 on Windows (USB passthrough, wireless debugging, adb fixes).
+
+## Links
+- Website: https://trozovka.github.io
+- GitHub: https://github.com/Trozovka
+- Shop: https://trozovka.gumroad.com
