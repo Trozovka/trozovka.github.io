@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Android from WSL2 - USB, Wi-Fi debugging and adb fixes | Trozovka (John Winsome Munar)</title>
+<meta name="description" content="How to control an Android phone from WSL2 on Windows: usbipd-win USB passthrough, wireless debugging behind a VPN firewall app, and fixing an adb server that freezes. By John Winsome Munar (Trozovka).">
+<meta name="author" content="John Winsome Munar">
+<link rel="canonical" href="https://trozovka.github.io/android-from-wsl2.html">
+<meta property="og:title" content="Android from WSL2">
+<meta property="og:description" content="How to control an Android phone from WSL2 on Windows: usbipd-win USB passthrough, wireless debugging behind a VPN firewall app, and fixing an adb server that freezes. By John Winsome Munar (Trozovka).">
+<meta property="og:url" content="https://trozovka.github.io/android-from-wsl2.html">
+<meta property="og:type" content="article">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"Android from WSL2: USB, Wi-Fi, and the problems in between","description":"How to control an Android phone from WSL2 on Windows: usbipd-win USB passthrough, wireless debugging behind a VPN firewall app, and fixing an adb server that freezes. By John Winsome Munar (Trozovka).","datePublished":"2026-11-13","inLanguage":"en",
+ "author":{"@type":"Person","name":"John Winsome Munar","alternateName":"Trozovka","jobTitle":"Master Mariner","url":"https://trozovka.github.io/"},
+ "url":"https://trozovka.github.io/android-from-wsl2.html","license":"https://creativecommons.org/licenses/by/4.0/",
+ "keywords":"WSL2, Android, adb, scrcpy, usbipd-win, usbip, wireless debugging, troubleshooting"}
+</script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6672; --accent:#2f6fde; --border:#dde1e6; --code:#eef1f4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1c2024; --ink:#e8e9e7; --muted:#9aa3ab; --accent:#6ea0ff; --border:#2b3035; --code:#23282d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 -apple-system,"Segoe UI",Roboto,Arial,sans-serif; padding:2rem 1rem 4rem; }
+  main { max-width:46rem; margin:0 auto; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .4rem; }
+  .sub { font-size:1.1rem; margin:0 0 .6rem; }
+  .by { color:var(--muted); margin:0 0 1.5rem; }
+  h2 { font-size:1.3rem; margin:2.2rem 0 .6rem; padding-top:.4rem; border-top:1px solid var(--border); }
+  a { color:var(--accent); }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45; }
+  code { background:var(--code); padding:.08rem .3rem; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:.6rem 0 1rem; font-size:.95rem; display:block; overflow-x:auto; }
+  th, td { border:1px solid var(--border); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  hr { border:0; border-top:1px solid var(--border); margin:2rem 0; }
+  .back { display:inline-block; margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="https://trozovka.github.io/">&larr; Trozovka (John Winsome Munar)</a>
+<h1>Android from WSL2</h1>
+<p class="sub"><strong>Controlling an Android phone from WSL2 on Windows: USB, Wi-Fi, and the problems in between</strong></p>
+<p class="by">By <strong>John Winsome Munar (Trozovka)</strong>, Master Mariner · November 2026 · <a href="https://github.com/Trozovka/android-from-wsl2">Also on GitHub</a></p>
+<p>I do most of my work in Ubuntu on WSL2 (Windows Subsystem for Linux). I also test Android
+apps I build, set up phones for use at sea, and help my family with theirs. So I wanted
+the phone's screen on my laptop, and <code>adb</code> (Android Debug Bridge) working from Linux,
+both with a cable and over Wi-Fi.</p>
+<p>It worked for months. Then one week it broke in three different ways at once. This page
+explains how the setup works, what broke, how I found the cause, and how I fixed it, so the
+next person (or the next me) can do it in minutes.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-the-parts">The parts</a></li>
+<li><a href="#2-building-scrcpy">Building scrcpy</a></li>
+<li><a href="#3-the-usb-path">The USB path</a></li>
+<li><a href="#4-the-wi-fi-path">The Wi-Fi path</a></li>
+<li><a href="#5-problem-1-usb-attach-fails-after-an-update">Problem 1: USB attach fails after an update</a></li>
+<li><a href="#6-problem-2-the-phone-shows-the-wrong-ip-address">Problem 2: the phone shows the wrong IP address</a></li>
+<li><a href="#7-problem-3-adb-freezes-on-start">Problem 3: adb freezes on start</a></li>
+<li><a href="#8-safety-notes">Safety notes</a></li>
+<li><a href="#9-quick-checklist">Quick checklist</a></li>
+<li><a href="#10-what-i-learned">What I learned</a></li>
+</ol>
+<hr />
+<h2 id="1-the-parts">1. The parts</h2>
+<pre><code> Phone (USB debugging or Wireless debugging ON)
+   │                         │
+   │ USB cable               │ Wi-Fi (same network)
+   ▼                         │
+ Windows                     │
+   usbipd-win  ── shares the USB device ──┐
+                                          ▼
+ WSL2 (Ubuntu)                 usbip client + kernel vhci driver
+   adb server  ◄──── USB or TCP ─────────┘
+   scrcpy      ── mirrors the screen, sends taps and keys
+</code></pre>
+<ul>
+<li><strong>adb</strong> talks to the phone. It runs a small background "server" on the laptop, and every
+  <code>adb</code> command (and scrcpy) talks to that server through a local port.</li>
+<li><strong>scrcpy</strong> shows the phone's screen in a window and lets you use mouse and keyboard on it.</li>
+<li><strong>WSL2 has no direct USB access.</strong> A Windows tool, <strong>usbipd-win</strong>, shares a USB device over
+  a virtual network into WSL2, where the Linux <code>usbip</code> client attaches it.</li>
+<li><strong>Wireless debugging</strong> (Android 11 and later) lets adb connect over Wi-Fi after a one-time
+  pairing with a 6-digit code. No cable, no usbipd.</li>
+</ul>
+<h2 id="2-building-scrcpy">2. Building scrcpy</h2>
+<p>The scrcpy package in Ubuntu's own repository was too old for a phone on a recent Android
+version: it starts, then fails because Android's internals changed. The snap version needed a
+chain of extra packages just to open a window.</p>
+<p>What worked: <strong>build scrcpy from source</strong> at a release that still uses SDL2 (newer releases
+need SDL3, which my Ubuntu version doesn't ship), and use the <strong>prebuilt server file</strong> that
+scrcpy publishes with each release. That way you don't need the whole Android SDK to build
+it. Install into your home folder (<code>meson --prefix=$HOME/.local</code>, then <code>ninja install</code>), so
+no system files change.</p>
+<p>Two scrcpy options I always use: <code>--screen-off-timeout</code> (so the phone doesn't lock while I
+work) and <code>-w</code> (keep awake while charging).</p>
+<h2 id="3-the-usb-path">3. The USB path</h2>
+<p>On Windows (once, as administrator, after each Windows restart):</p>
+<pre><code>usbipd list                 # find the phone's BUSID
+usbipd bind --busid &lt;BUSID&gt;
+</code></pre>
+<p>Then, each time you plug in:</p>
+<pre><code>usbipd attach --wsl --busid &lt;BUSID&gt;
+</code></pre>
+<p>In WSL the phone then appears in <code>adb devices</code>. The Linux side needs the <code>usbip</code> client
+tools (<code>linux-tools-generic</code> on Ubuntu) and the kernel's <code>vhci-hcd</code> driver, which the WSL2
+kernel already includes.</p>
+<h2 id="4-the-wi-fi-path">4. The Wi-Fi path</h2>
+<ol>
+<li>Phone and laptop on <strong>the same Wi-Fi network</strong>.</li>
+<li>Phone: <strong>Settings → Developer options → Wireless debugging → On</strong>.</li>
+<li>The screen shows an <strong>IP address and port</strong> for connecting. Tap <strong>Pair device with
+   pairing code</strong> to get a second IP:port and a 6-digit code.</li>
+<li>On the laptop, once per laptop:</li>
+</ol>
+<p><code>adb pair 192.0.2.25:41234 123456      # pairing IP:port and code</code></p>
+<ol>
+<li>Then, every time:</li>
+</ol>
+<p><code>adb connect 192.0.2.25:37001          # the connect IP:port
+   scrcpy</code></p>
+<p>The ports change every time Wireless debugging is switched on, so a small script that
+remembers the last working address and asks for the new one when needed saves a lot of
+typing. (The addresses above are examples from the range reserved for documentation.)</p>
+<hr />
+<h2 id="5-problem-1-usb-attach-fails-after-an-update">5. Problem 1: USB attach fails after an update</h2>
+<p><strong>Symptom.</strong> The Windows side found the phone and tried to attach it, but nothing appeared
+in WSL. My script said Windows didn't attach the device. Running <code>usbip</code> by hand printed:</p>
+<pre><code>WARNING: usbip not found for kernel 6.x.x-microsoft-standard-WSL2
+  You may need to install the following packages for this specific kernel: ...
+</code></pre>
+<p><strong>Cause.</strong> Ubuntu's <code>usbip</code> command is a small wrapper that looks for a version matching the
+running kernel. The WSL2 kernel is Microsoft's, and Ubuntu has no tools package for it, so
+the usual trick is to point <code>usbip</code> at the generic tools with <code>update-alternatives</code>. That
+link pointed at a specific version folder, for example <code>linux-tools/6.8.0-139-generic/usbip</code>.
+A routine <code>apt upgrade</code> installed a newer version and <strong>removed the old folder</strong>. The link
+now pointed at nothing, so the system fell back to the wrapper, which complained.</p>
+<p><strong>Fix.</strong> Replace the fixed link with a tiny script that always uses whatever version is
+installed:</p>
+<pre><code>sudo rm -f /usr/local/bin/usbip
+printf '#!/bin/sh\nexec &quot;$(ls -d /usr/lib/linux-tools/*/usbip | sort -V | tail -1)&quot; &quot;$@&quot;\n' \
+  | sudo tee /usr/local/bin/usbip &gt;/dev/null
+sudo chmod +x /usr/local/bin/usbip
+usbip version
+</code></pre>
+<p>The <code>rm</code> matters: <code>tee</code> follows the broken link and fails with "No such file or directory"
+if you skip it. After this, future upgrades can't break it again.</p>
+<h2 id="6-problem-2-the-phone-shows-the-wrong-ip-address">6. Problem 2: the phone shows the wrong IP address</h2>
+<p><strong>Symptom.</strong> The Wireless debugging screen showed an address like <code>10.111.222.1</code>, while the
+laptop was on <code>192.168.x.x</code>. Pairing timed out. It looked as if the phone and laptop were on
+different networks, but they were on the same Wi-Fi.</p>
+<p><strong>Cause.</strong> The phone runs a <strong>firewall app that works as a local VPN</strong> (on Android, firewall
+apps that need no root do this). Android's Wireless debugging screen showed the <strong>VPN
+tunnel's address</strong>, not the Wi-Fi address. adb still listens on the Wi-Fi interface; only the
+displayed address is misleading.</p>
+<p><strong>Fix.</strong> Use the phone's real Wi-Fi address (<strong>Settings → Wi-Fi → the gear icon next to your
+network → IP address</strong>) with the <strong>ports</strong> from the Wireless debugging screen. To check
+before pairing, from Linux:</p>
+<pre><code>timeout 4 bash -c '&lt;/dev/tcp/192.0.2.25/37001' &amp;&amp; echo open || echo closed
+</code></pre>
+<p>Also check the firewall app doesn't route local network traffic through its tunnel. Mine has
+an option to leave private (LAN) addresses outside the VPN, and that must be on.</p>
+<h2 id="7-problem-3-adb-freezes-on-start">7. Problem 3: adb freezes on start</h2>
+<p><strong>Symptom.</strong> Every <code>adb</code> command hung forever, even <code>adb devices</code>. Restarting didn't help.
+The newer adb from the Android SDK hung the same way. There was no adb process left
+afterwards and nothing obviously holding the port.</p>
+<p><strong>How I found it.</strong> Run the server in the foreground with full tracing, on a different port:</p>
+<pre><code>ADB_TRACE=all timeout 6 adb -P 5099 nodaemon server
+</code></pre>
+<p>The trace reached <code>Event loop starting</code>. So the server itself was fine. And a client
+connected to it without trouble:</p>
+<pre><code>setsid adb -P 5099 nodaemon server &amp;      # server in the background
+adb -P 5099 devices                        # works
+</code></pre>
+<p>What hangs is the <strong>normal start</strong>, where <code>adb</code> forks a background server and waits for it
+to report back. In my setup (WSL2 with the "mirrored" networking mode, after a WSL kernel
+update) that handshake never completed. I didn't find the deepest reason, and I didn't need
+to: the server works when started directly.</p>
+<p><strong>Fix.</strong> Start the server yourself and point every tool at it. A small file that each phone
+script loads:</p>
+<pre><code>export ANDROID_ADB_SERVER_PORT=5099      # adb and scrcpy both read this
+export ADB_MDNS=0                        # no network discovery, fewer surprises
+adb_up() {
+  if ! ss -ltn | grep -q '127.0.0.1:5099 '; then
+    setsid adb -P 5099 nodaemon server &gt;/dev/null 2&gt;&amp;1 &lt; /dev/null &amp;
+    sleep 2
+  fi
+}
+adb_up
+</code></pre>
+<p><strong>A trap I fell into while debugging:</strong> <code>pkill -f "adb nodaemon"</code> also matched the shell that
+was running my command (its command line contained the same words) and killed it. Use
+<code>pgrep -a adb</code> first, then kill by process number.</p>
+<h2 id="8-safety-notes">8. Safety notes</h2>
+<ul>
+<li><strong>Turn USB debugging and Wireless debugging off when you're done.</strong> Some banking apps
+  refuse to open while they're on, and an open debug port is a door.</li>
+<li>Pairing codes expire in about a minute and only work on the same network. That's good.</li>
+<li>Only pair laptops you own. Remove old ones under Wireless debugging → Paired devices.</li>
+<li>Don't run adb commands you don't understand on a phone with your personal data on it.
+  When someone helps you, agree first on what they will and won't touch.</li>
+</ul>
+<h2 id="9-quick-checklist">9. Quick checklist</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Command or place</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phone seen by Windows?</td>
+<td><code>usbipd list</code> (on Windows)</td>
+</tr>
+<tr>
+<td>Bound once after reboot?</td>
+<td><code>usbipd bind --busid &lt;BUSID&gt;</code> (admin)</td>
+</tr>
+<tr>
+<td><code>usbip</code> works in WSL?</td>
+<td><code>usbip version</code></td>
+</tr>
+<tr>
+<td>adb server running?</td>
+<td><code>ss -ltn \| grep 5099</code></td>
+</tr>
+<tr>
+<td>Phone seen by adb?</td>
+<td><code>adb devices -l</code></td>
+</tr>
+<tr>
+<td>Same Wi-Fi?</td>
+<td>compare laptop <code>ip addr</code> with phone's Wi-Fi IP (not the VPN one)</td>
+</tr>
+<tr>
+<td>Port open?</td>
+<td><code>timeout 4 bash -c '&lt;/dev/tcp/&lt;ip&gt;/&lt;port&gt;'</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-what-i-learned">10. What I learned</h2>
+<ul>
+<li><strong>Three faults at once look like one big fault.</strong> Separate them: USB, network, adb. Test
+  each with the smallest possible command.</li>
+<li><strong>Fixed version paths break on upgrades.</strong> Point at "the newest installed", not at a number.</li>
+<li><strong>The screen can lie.</strong> A displayed address isn't always the address that works.</li>
+<li><strong>When the normal way hangs, run the piece by hand.</strong> <code>nodaemon</code> plus tracing showed the
+  server was healthy and narrowed the fault to the start-up handshake.</li>
+<li><strong>Write it down.</strong> Next time this takes five minutes instead of an afternoon.</li>
+</ul>
+<hr />
+<p><strong>About the author.</strong> John Winsome Munar (Trozovka) is a Master Mariner who builds practical
+software for seafarers. More at <a href="https://trozovka.github.io">trozovka.github.io</a>.</p>
+<p>Text © 2026 John Winsome Munar. Shared under
+<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>: you may share and adapt it with credit.</p>
+</main>
+</body>
+</html>
