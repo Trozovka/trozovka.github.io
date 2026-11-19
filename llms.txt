@@ -13,6 +13,9 @@
 - [Trozovka Notes](https://github.com/Trozovka/Trozovka-Notes): always-on-top desktop sticky notes.
 - Simple PDF Editor and Simple Photo & Video Resizer: https://trozovka.gumroad.com
 
+## Books
+- [Command in Narrow Waters](https://trozovka.github.io/command-in-narrow-waters.html): by Capt. John Winsome Munar, Master Mariner Guides book 1. Pilotage, self-pilotage, rivers, anchorages, under-keel clearance and squat, and the law and commerce of pilot waters. Paperback ISBN 9798142539861, Kindle.
+
 ## Writing
 - [Weather by Email at Sea](https://trozovka.github.io/weather-by-email-at-sea.html): getting a 10-day GRIB forecast and weather-fax style charts on a ship with only company email.
 - [The Master's General Account in One Workbook](https://trozovka.github.io/masters-general-account.html): one checked Excel workbook for the ship Master's monthly account (crew wages, allotments, cash advances, bonded store, cash), plain formulas and visible checks.
