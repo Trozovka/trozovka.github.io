@@ -15,6 +15,7 @@
 
 ## Writing
 - [Weather by Email at Sea](https://trozovka.github.io/weather-by-email-at-sea.html): getting a 10-day GRIB forecast and weather-fax style charts on a ship with only company email.
+- [The Master's General Account in One Workbook](https://trozovka.github.io/masters-general-account.html): one checked Excel workbook for the ship Master's monthly account (crew wages, allotments, cash advances, bonded store, cash), plain formulas and visible checks.
 - [Android from WSL2](https://trozovka.github.io/android-from-wsl2.html): controlling an Android phone from WSL2 on Windows (USB passthrough, wireless debugging, adb fixes).
 
 ## Links

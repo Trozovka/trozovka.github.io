@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Master's General Account in One Workbook - crew wages, allotments and cash in plain Excel | Trozovka (John Winsome Munar)</title>
+<meta name="description" content="How Master Mariner John Winsome Munar (Trozovka) replaced a pile of linked spreadsheets with one checked Excel workbook for the Master's monthly general account: crew wages, allotments, cash advances, bonded store and cash, with plain formulas and visible checks.">
+<meta name="author" content="John Winsome Munar">
+<link rel="canonical" href="https://trozovka.github.io/masters-general-account.html">
+<meta property="og:title" content="The Master's General Account in One Workbook">
+<meta property="og:description" content="How Master Mariner John Winsome Munar (Trozovka) replaced a pile of linked spreadsheets with one checked Excel workbook for the Master's monthly general account: crew wages, allotments, cash advances, bonded store and cash, with plain formulas and visible checks.">
+<meta property="og:url" content="https://trozovka.github.io/masters-general-account.html">
+<meta property="og:type" content="article">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"The Master's General Account in One Workbook: how I turned a pile of linked spreadsheets into one checked Excel file",
+ "description":"How Master Mariner John Winsome Munar (Trozovka) replaced a pile of linked spreadsheets with one checked Excel workbook for the Master's monthly general account: crew wages, allotments, cash advances, bonded store and cash, with plain formulas and visible checks.","datePublished":"2026-11-20","inLanguage":"en",
+ "author":{"@type":"Person","name":"John Winsome Munar","alternateName":"Trozovka","jobTitle":"Master Mariner","url":"https://trozovka.github.io/"},
+ "url":"https://trozovka.github.io/masters-general-account.html",
+ "license":"https://creativecommons.org/licenses/by/4.0/",
+ "keywords":"master's account, ship master monthly account, crew wages Excel, seafarer payroll, allotment, bonded store, cash advance, Master Mariner, Excel formulas"}
+</script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6672; --accent:#2f6fde; --border:#dde1e6; --code:#eef1f4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1c2024; --ink:#e8e9e7; --muted:#9aa3ab; --accent:#6ea0ff; --border:#2b3035; --code:#23282d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 -apple-system,"Segoe UI",Roboto,Arial,sans-serif; padding:2rem 1rem 4rem; }
+  main { max-width:46rem; margin:0 auto; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .4rem; }
+  .sub { font-size:1.1rem; margin:0 0 .6rem; }
+  .by { color:var(--muted); margin:0 0 1.5rem; }
+  h2 { font-size:1.3rem; margin:2.2rem 0 .6rem; padding-top:.4rem; border-top:1px solid var(--border); }
+  a { color:var(--accent); }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45; }
+  code { background:var(--code); padding:.08rem .3rem; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:.6rem 0 1rem; font-size:.95rem; display:block; overflow-x:auto; }
+  th, td { border:1px solid var(--border); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  hr { border:0; border-top:1px solid var(--border); margin:2rem 0; }
+  .back { display:inline-block; margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="https://trozovka.github.io/">&larr; Trozovka (John Winsome Munar)</a>
+<h1>The Master's General Account in One Workbook</h1>
+<p class="sub"><strong>How I turned a pile of linked spreadsheets into one checked Excel file</strong></p>
+<p class="by">By <strong>John Winsome Munar (Trozovka)</strong>, Master Mariner · November 2026 ·
+<a href="https://github.com/Trozovka/masters-general-account">Also on GitHub</a></p>
+<p>Every month the Master sends the office a general account: crew wages, allotments
+to families, cash advances, bonded store sales, allowances paid in cash, and the
+cash left in the safe. Most companies give you an Excel form for it. Most Masters
+then build their own helper files around that form, because the form alone does
+not help you get the numbers right.</p>
+<p>I did the same for years. My helper files grew until they caused more mistakes
+than they prevented. This page explains what was wrong, what I changed, and the
+rules I now follow, so another Master (or a developer helping one) can do the same
+with their own company's form.</p>
+<p>Nothing here is copied from any company form. All numbers are made up.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-what-the-monthly-account-covers">What the monthly account covers</a></li>
+<li><a href="#2-where-my-old-setup-went-wrong">Where my old setup went wrong</a></li>
+<li><a href="#3-the-rules-i-set-myself">The rules I set myself</a></li>
+<li><a href="#4-the-sheets">The sheets</a></li>
+<li><a href="#5-wages-pro-rata-by-30-days">Wages: pro-rata by 30 days</a></li>
+<li><a href="#6-let-the-allotment-calculate-itself">Let the allotment calculate itself</a></li>
+<li><a href="#7-bonded-store-and-the-handlers-commission">Bonded store and the handler's commission</a></li>
+<li><a href="#8-getting-the-numbers-into-the-company-form">Getting the numbers into the company form</a></li>
+<li><a href="#9-checks-you-can-see">Checks you can see</a></li>
+<li><a href="#10-testing-it-with-a-real-past-month">Testing it with a real past month</a></li>
+<li><a href="#11-the-excel-functions-i-used">The Excel functions I used</a></li>
+<li><a href="#12-lessons">Lessons</a></li>
+<li><a href="#13-disclaimer">Disclaimer</a></li>
+</ol>
+<h2 id="1-what-the-monthly-account-covers">1. What the monthly account covers</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wages</td>
+<td>Each crew member's earnings for the month, by rank and days on board</td>
+</tr>
+<tr>
+<td>Other incomes</td>
+<td>Bonuses and allowances that go through the payroll</td>
+</tr>
+<tr>
+<td>Deductions</td>
+<td>Leave pay, union fee, bonded store, cash advance, phone, others</td>
+</tr>
+<tr>
+<td>Allotments</td>
+<td>What is left, sent home to one or more beneficiaries</td>
+</tr>
+<tr>
+<td>Cash advances</td>
+<td>Cash given on board, split by reason</td>
+</tr>
+<tr>
+<td>Cash allowances</td>
+<td>Hold cleaning and similar work paid in cash</td>
+</tr>
+<tr>
+<td>Bonded store</td>
+<td>Cigarettes, drinks and snacks sold to crew or used for entertainment</td>
+</tr>
+<tr>
+<td>Cash account</td>
+<td>Cash received, cash paid out, cash carried forward</td>
+</tr>
+<tr>
+<td>Payslips</td>
+<td>One receipt per crew member</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-where-my-old-setup-went-wrong">2. Where my old setup went wrong</h2>
+<ul>
+<li><strong>Links to other files.</strong> My helper files pulled numbers from the company file
+  by external links. Every month the file got a new name or moved to a new folder,
+  and the links either broke or, worse, kept reading last month's file without any
+  warning. One of my files was still linked to a copy on a USB stick.</li>
+<li><strong>The same crew list typed six times.</strong> Cash advances, cash received, bonuses,
+  allowances, bonded store and the company form each had their own list of names.
+  One spelling change and the totals stopped matching.</li>
+<li><strong>Rates typed inside formulas.</strong> Each wage cell held the monthly rate inside the
+  formula itself. When the company changed the scale, every row had to be edited
+  by hand.</li>
+<li><strong>The allotment was a typed number.</strong> I worked it out on the side so that
+  nothing was carried forward, then typed it in. Any later change to a deduction
+  meant doing it again.</li>
+<li><strong>Checks that depended on the links.</strong> My cross-check file was only right when
+  its links happened to point at the right file.</li>
+<li><strong>Rounding everywhere and nowhere.</strong> Some sheets rounded to cents, others did
+  not, so totals that should agree were a few cents apart and I never knew which
+  one was right.</li>
+</ul>
+<h2 id="3-the-rules-i-set-myself">3. The rules I set myself</h2>
+<ol>
+<li><strong>The company form is never changed.</strong> It is their document. My file only
+   prepares numbers for it.</li>
+<li><strong>One file per month.</strong> No links to any other file.</li>
+<li><strong>Type each fact once.</strong> A crew member's name, rank and dates are typed in one
+   place; every other sheet reads them from there.</li>
+<li><strong>Plain formulas only.</strong> No macros (company laptops often block them) and only
+   functions that work in old Excel versions, so any Master can open it.</li>
+<li><strong>Same cell addresses as the company sheet</strong> wherever numbers are copied
+   across, so a block can be pasted straight in.</li>
+<li><strong>Checks on screen.</strong> Green when right, red when wrong, amber when it might be
+   intended.</li>
+<li><strong>One rounding rule.</strong> Money that leaves the ship (allotments) is rounded to
+   cents; the tiny remainder is carried forward and stays visible.</li>
+</ol>
+<h2 id="4-the-sheets">4. The sheets</h2>
+<table>
+<thead>
+<tr>
+<th>Sheet</th>
+<th>What you do there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>START</td>
+<td>Vessel, month, Master, and the steps for the month</td>
+</tr>
+<tr>
+<td>RATES</td>
+<td>The company wage scale by rank, typed once, changed only when the company changes it</td>
+</tr>
+<tr>
+<td>CREW</td>
+<td>One line per person: rank, name, nationality, sign on, sign off, personal allowance, balances</td>
+</tr>
+<tr>
+<td>INCOME</td>
+<td>One line per extra income item, with a type, so you can see later what each amount was</td>
+</tr>
+<tr>
+<td>ADVANCES</td>
+<td>Cash advance per person, split into parts (on board, port orders, home office, bonded, other)</td>
+</tr>
+<tr>
+<td>WAGES</td>
+<td>The full payroll, calculated</td>
+</tr>
+<tr>
+<td>CASH ALLOW</td>
+<td>Cash allowances per person</td>
+</tr>
+<tr>
+<td>BOND</td>
+<td>Bonded store quantities per person and per article, stock in and out</td>
+</tr>
+<tr>
+<td>CASH</td>
+<td>Cash received, cash paid, balance, and a box to count the safe</td>
+</tr>
+<tr>
+<td>ALLOTMENTS</td>
+<td>Beneficiary lines, with fixed amounts and "the rest"</td>
+</tr>
+<tr>
+<td>PAYSLIP</td>
+<td>Pick a name, print, sign</td>
+</tr>
+<tr>
+<td>CHECKS</td>
+<td>Every check in one place</td>
+</tr>
+<tr>
+<td>TRANSFER</td>
+<td>The finished numbers laid out exactly like the company sheet</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-wages-pro-rata-by-30-days">5. Wages: pro-rata by 30 days</h2>
+<p>Many companies pay a full month as 30 days, whatever the calendar says, and a part
+month by the actual days on board. With a made-up basic wage of 900 a month:</p>
+<ul>
+<li>On board the whole month: 900 × 30 / 30 = <strong>900</strong></li>
+<li>Joined on the 6th of a 31-day month (26 days): 900 × 26 / 30 = <strong>780</strong></li>
+</ul>
+<p>The days fill in by themselves from the sign-on and sign-off dates:</p>
+<pre><code>=IF(name=&quot;&quot;,&quot;&quot;,
+  IF(AND(OR(signon=&quot;&quot;,signon&lt;=month_start), OR(signoff=&quot;&quot;,signoff&gt;=EOMONTH(month_start,0))),
+     30,
+     MIN(IF(signoff=&quot;&quot;,EOMONTH(month_start,0),signoff),EOMONTH(month_start,0))
+     - MAX(IF(signon=&quot;&quot;,month_start,signon),month_start) + 1))
+</code></pre>
+<p>Each wage part is then a lookup into the RATES sheet by rank, times days / 30.
+One part (a personal allowance) differs from person to person even within the
+same rank, so it sits on the CREW sheet instead.</p>
+<h2 id="6-let-the-allotment-calculate-itself">6. Let the allotment calculate itself</h2>
+<p>The regular allotment is simply what is left:</p>
+<pre><code>allotment = earned wage + other incomes + last month's balance
+          - all deductions - anything the crew member wants kept on board
+</code></pre>
+<p>rounded to cents. If a crew member ends up owing money (for example a large cash
+advance on a short month), the allotment goes negative. A negative allotment cannot
+be sent, so the CHECKS sheet shows it in amber: it might be intended, but you
+should look.</p>
+<p>Many crew send money to more than one person: a fixed amount to one, the rest to
+another. Each beneficiary is one line. Type the fixed amount on the first line,
+leave the second blank, and the blank line takes whatever is left:</p>
+<pre><code>=IF(fixed&lt;&gt;&quot;&quot;, fixed,
+   IF(first line of this person without a fixed amount,
+      ROUND(person's allotment - SUMIFS(fixed amounts of this person), 2), 0))
+</code></pre>
+<p>The lines of all crew must add up to the payroll total. That is one of the checks.</p>
+<h2 id="7-bonded-store-and-the-handlers-commission">7. Bonded store and the handler's commission</h2>
+<p>Bonded items are bought from a different supplier in each port, so the price is
+typed per article, once. Quantities are typed per person. Each person's total is
+<code>SUMPRODUCT(quantities, prices)</code>, which goes straight into their deductions. No
+long hand-made <code>qty×price + qty×price + ...</code> formulas that silently miss a column.</p>
+<p>If the selling price is cost plus a markup that pays the store handler, the
+commission can be worked out from total sales. With a 5% markup:</p>
+<pre><code>commission = total sales / 1.05 × 0.05
+</code></pre>
+<p>Stock carried forward is stock last month + purchased − sold − used for
+entertainment. A negative number means a typing error, and it turns red.</p>
+<h2 id="8-getting-the-numbers-into-the-company-form">8. Getting the numbers into the company form</h2>
+<p>The TRANSFER sheet uses the same cell addresses as the company sheet. You select
+a white block, copy, click the same cell in the company file, and use
+<strong>Paste Special → Values</strong>. Columns that are formulas in the company form are
+shaded grey, and you never paste over them.</p>
+<p>This is why "same cell addresses" is one of the rules: there is nothing to map by
+hand, so nothing to get wrong.</p>
+<h2 id="9-checks-you-can-see">9. Checks you can see</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Every rank exists in the rate table</td>
+<td>A typo in a rank would quietly pay zero</td>
+</tr>
+<tr>
+<td>Days between 1 and 30</td>
+<td>Catches wrong dates</td>
+</tr>
+<tr>
+<td>Every income line belongs to a crew member</td>
+<td>Catches name spelling differences</td>
+</tr>
+<tr>
+<td>Every income line has a type</td>
+<td>So the payslip can be explained later</td>
+</tr>
+<tr>
+<td>Negative allotment (amber)</td>
+<td>Crew owing money</td>
+</tr>
+<tr>
+<td>Carried forward = what you wanted</td>
+<td>The allotment really took everything else</td>
+</tr>
+<tr>
+<td>Income total and cash advance total agree across sheets</td>
+<td>Nothing lost between sheets</td>
+</tr>
+<tr>
+<td>Allotment lines = payroll allotments</td>
+<td>Every dollar has a beneficiary</td>
+</tr>
+<tr>
+<td>Allotment &gt; 0 but no beneficiary line</td>
+<td>Someone would not get paid</td>
+</tr>
+<tr>
+<td>Negative bonded stock</td>
+<td>Typing error</td>
+</tr>
+<tr>
+<td>Cash counted = cash balance</td>
+<td>The safe matches the books</td>
+</tr>
+<tr>
+<td>Company totals typed back in</td>
+<td>After pasting, the company form agrees with this file</td>
+</tr>
+</tbody>
+</table>
+<p>The last check replaces the external links I used before. After pasting into the
+company form, you type its handful of totals back into the CHECKS sheet. Six
+numbers typed by hand are more reliable than six links that may point at the wrong
+file.</p>
+<h2 id="10-testing-it-with-a-real-past-month">10. Testing it with a real past month</h2>
+<p>The only test I trust: take a month that was already sent and accepted, put its
+data into the new file, and require every line to match the old result <strong>to the
+cent</strong>. Wages, incomes, allotments, bonded, cash advances, the commission and the
+final cash balance.</p>
+<p>It matched on every line. Along the way the checks also showed two things the old
+files had hidden: a crew member who left owing money (I had planted that one on
+purpose, to see if it would be caught), and two parts of the company form that
+disagreed with each other about that same person. Both would have been caught
+before sending.</p>
+<h2 id="11-the-excel-functions-i-used">11. The Excel functions I used</h2>
+<p>All available since Excel 2010, so they work on old office laptops:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INDEX</code> + <code>MATCH</code></td>
+<td>Looking up a rank's rates, a person's allotment</td>
+</tr>
+<tr>
+<td><code>SUMIFS</code>, <code>COUNTIFS</code></td>
+<td>Totals per person, "first line of this person"</td>
+</tr>
+<tr>
+<td><code>SUMPRODUCT</code></td>
+<td>Quantity × price across a row, counting problems in a range</td>
+</tr>
+<tr>
+<td><code>EOMONTH</code></td>
+<td>Month end for the day count</td>
+</tr>
+<tr>
+<td><code>ROUND</code></td>
+<td>One rounding rule, in one place</td>
+</tr>
+<tr>
+<td>Data validation lists</td>
+<td>Rank and name drop-downs, so spelling always matches</td>
+</tr>
+<tr>
+<td>Conditional formatting</td>
+<td>Green / red / amber checks</td>
+</tr>
+</tbody>
+</table>
+<p>No <code>XLOOKUP</code>, no <code>FILTER</code>, no macros.</p>
+<h2 id="12-lessons">12. Lessons</h2>
+<ul>
+<li><strong>Type each fact once.</strong> Most of my old mistakes were the same fact typed twice
+  and drifting apart.</li>
+<li><strong>Links between files are a trap</strong> for anything renamed monthly. One file per
+  month, no links.</li>
+<li><strong>A typed balancing number is a mistake waiting to happen.</strong> Calculate it.</li>
+<li><strong>Test against a month you already know is right.</strong> "It looks right" is not a test.</li>
+<li><strong>Make checks visible.</strong> A check hidden in another file is a check nobody runs.</li>
+</ul>
+<h2 id="13-disclaimer">13. Disclaimer</h2>
+<p>This is how I organise my own monthly account. It is not any company's official
+form or procedure. Your company's rules, forms and deadlines always come first;
+if your company counts days, rounds or deducts differently, change the file to
+match them.</p>
+<hr />
+<p><strong>About the author.</strong> John Winsome Munar (Trozovka) is a Master Mariner who builds
+practical software for seafarers, including WX weather apps for slow ship internet,
+PocketMOB Alert (man-overboard alarm), PocketVDR (voyage data recorder) and OpenCPN
+GPS Server. More at <a href="https://trozovka.github.io">trozovka.github.io</a>.</p>
+<p>Text © 2026 John Winsome Munar. Shared under
+<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+</main>
+</body>
+</html>
