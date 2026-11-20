@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squat and Under-Keel Clearance: the Master's Quick Checks (Barrass formula, worked example) | Capt. John Winsome Munar</title>
+<meta name="description" content="Squat and under-keel clearance for ship Masters: the UKC budget, the Barrass squat formulas, a worked bar-crossing example (10 knots or 8), common pitfalls and a UKC sheet checklist. Adapted from Command in Narrow Waters by Capt. John Winsome Munar.">
+<meta name="author" content="Capt. John Winsome Munar">
+<link rel="canonical" href="https://trozovka.github.io/squat-and-ukc.html">
+<meta property="og:title" content="Squat and Under-Keel Clearance: the Master's Quick Checks">
+<meta property="og:description" content="Squat and under-keel clearance for ship Masters: the UKC budget, the Barrass squat formulas, a worked bar-crossing example (10 knots or 8), common pitfalls and a UKC sheet checklist. Adapted from Command in Narrow Waters by Capt. John Winsome Munar.">
+<meta property="og:url" content="https://trozovka.github.io/squat-and-ukc.html">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://trozovka.github.io/img/command-in-narrow-waters-cover.jpg">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Article", "headline": "Squat and Under-Keel Clearance: the Master's Quick Checks", "description": "Squat and under-keel clearance for ship Masters: the UKC budget, the Barrass squat formulas, a worked bar-crossing example (10 knots or 8), common pitfalls and a UKC sheet checklist. Adapted from Command in Narrow Waters by Capt. John Winsome Munar.", "datePublished": "2026-11-20", "inLanguage": "en", "author": {"@id": "https://trozovka.github.io/#person", "@type": "Person", "name": "John Winsome Munar", "honorificPrefix": "Capt.", "url": "https://trozovka.github.io/"}, "isBasedOn": {"@id": "https://trozovka.github.io/command-in-narrow-waters.html#book"}, "url": "https://trozovka.github.io/squat-and-ukc.html", "keywords": "ship squat, under keel clearance, UKC calculation, Barrass squat formula, blockage factor, dock water allowance, fresh water allowance, bar crossing, master pilot exchange, pilotage, bulk carrier, Capesize", "about": ["Ship squat", "Under-keel clearance", "Pilotage"]}
+</script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2430; --muted:#5b6672; --accent:#2f6fde; --border:#dde1e6; --code:#eef1f4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1c2024; --ink:#e8e9e7; --muted:#9aa3ab; --accent:#6ea0ff; --border:#2b3035; --code:#23282d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 -apple-system,"Segoe UI",Roboto,Arial,sans-serif; padding:2rem 1rem 4rem; }
+  main { max-width:46rem; margin:0 auto; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .4rem; }
+  .sub { font-size:1.1rem; margin:0 0 .6rem; }
+  .by { color:var(--muted); margin:0 0 1.5rem; }
+  h2 { font-size:1.3rem; margin:2.2rem 0 .6rem; padding-top:.4rem; border-top:1px solid var(--border); }
+  a { color:var(--accent); }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45; }
+  code { background:var(--code); padding:.08rem .3rem; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:.6rem 0 1rem; font-size:.95rem; display:block; overflow-x:auto; }
+  th, td { border:1px solid var(--border); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  hr { border:0; border-top:1px solid var(--border); margin:2rem 0; }
+  .back { display:inline-block; margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="https://trozovka.github.io/">&larr; Trozovka (John Winsome Munar)</a>
+<h1>Squat and Under-Keel Clearance</h1>
+<p class="sub"><strong>The Master's quick checks, with a worked bar crossing</strong></p>
+<p class="by">By <strong>Capt. John Winsome Munar</strong>, Master Mariner · November 2026 · From the book <a href="command-in-narrow-waters.html">Command in Narrow Waters</a></p>
+<p>On the night of 7 August 1992 the <em>Queen Elizabeth 2</em> struck uncharted rocks off Cuttyhunk Island, Massachusetts, with a state pilot on board. Before squat she had roughly two to three feet of water under her. Her Master had allowed one to one and a half feet for squat; the investigation found that her bow had sunk by at least 2.7 feet. The soundings came from a 1939 survey with lines 400 metres apart.</p>
+<p>Two uncertainties met under that keel: the depth of the water and the depth of the ship. Under-keel clearance (UKC) is the margin that has to cover both. This page sets out the quick checks I use as Master. It is adapted from Chapter 6 of my book <a href="command-in-narrow-waters.html"><em>Command in Narrow Waters</em></a>.</p>
+<h2 id="the-ukc-budget">The UKC budget</h2>
+<p>Treat UKC as a budget with two sides: the water available and the depth the ship needs.</p>
+<pre><code>Net UKC = (charted depth + height of tide - depth uncertainty)
+        - (static draught + squat + heel + wave response + density allowance)
+</code></pre>
+<p>What is left must be at least the net margin the port or company requires.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Where it comes from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Charted depth</td>
+<td>Chart or ENC; in dredged ports, the latest declared depth and its survey date</td>
+</tr>
+<tr>
+<td>Height of tide</td>
+<td>Tide tables, real-time gauges</td>
+</tr>
+<tr>
+<td>Depth uncertainty</td>
+<td>Survey quality (CATZOC / zone of confidence), siltation, tide prediction error</td>
+</tr>
+<tr>
+<td>Static draught</td>
+<td>Draught survey, in the water the ship will actually be in</td>
+</tr>
+<tr>
+<td>Squat</td>
+<td>Formulas, ship data, port tables or dynamic UKC systems</td>
+</tr>
+<tr>
+<td>Heel</td>
+<td>List, or heel when turning at speed</td>
+</tr>
+<tr>
+<td>Wave response</td>
+<td>Swell in exposed approaches</td>
+</tr>
+<tr>
+<td>Density allowance</td>
+<td>Fresh water and dock water allowance</td>
+</tr>
+<tr>
+<td>Net margin</td>
+<td>Port, terminal or company rule</td>
+</tr>
+</tbody>
+</table>
+<p>A charted sounding is a measurement made on one date by one method. Check the zone of confidence and the survey date before you trust it.</p>
+<h2 id="squat-in-one-paragraph">Squat in one paragraph</h2>
+<p>As a ship moves through shallow water, the water she pushes aside has to pass under and around the hull in a tight space. It speeds up, its pressure falls, and the ship sinks bodily and trims. Squat grows with speed, with the fullness of the hull, and with how much of the channel the ship blocks. Full ships (block coefficient above about 0.70, so loaded bulk carriers and tankers) squat most at the bow; finer ships most at the stern. Those are guides, not guarantees.</p>
+<h2 id="the-barrass-formulas">The Barrass formulas</h2>
+<p>The widely used empirical formula (Barrass) gives maximum squat in metres:</p>
+<pre><code>Squat max = Cb × S^0.81 × V^2.08 / 20
+</code></pre>
+<ul>
+<li><strong>Cb</strong>: block coefficient</li>
+<li><strong>V</strong>: speed <strong>through the water</strong> in knots</li>
+<li><strong>S</strong>: blockage factor = (breadth × draught) / (channel width × depth)</li>
+</ul>
+<p>Two short forms for the bridge:</p>
+<ul>
+<li>Open water: <strong>Cb × V² / 100</strong> (depth/draught about 1.1 to 1.4, no width limit)</li>
+<li>Confined channel: <strong>Cb × V² / 50</strong> (blockage about 0.100 to 0.266)</li>
+</ul>
+<p>Speed through the water, not over the ground: a ship stemming a two-knot current at six knots over the ground is squatting at eight.</p>
+<p>Because squat goes roughly with the square of speed, halving the speed cuts squat to about a quarter, and going from 10 to 7 knots cuts it by about half. Nothing else on the bridge buys under-keel clearance so cheaply.</p>
+<h2 id="the-formulas-disagree-so-plan-for-the-larger-one">The formulas disagree, so plan for the larger one</h2>
+<p>Every squat formula is fitted to model tests and some full-scale data. PIANC compares at least seven of them, and they differ by tens of centimetres. For the <em>Sea Empress</em> at Milford Haven in 1996, the investigators' methods gave 0.65 and 0.83 metres for the same moment. Three practical rules:</p>
+<ol>
+<li>Treat a formula as an estimate with an error band. If two methods give 0.65 and 0.83 m, plan for 0.83.</li>
+<li>Prefer squat data measured for the ship or her class, or the port's own tables, where they exist.</li>
+<li>Remember what the formula leaves out: meeting and overtaking, bank effect, swell, and the trim the ship already has.</li>
+</ol>
+<h2 id="worked-example-crossing-a-bar-10-knots-or-8">Worked example: crossing a bar, 10 knots or 8?</h2>
+<p>Illustrative figures, from the book:</p>
+<p><strong>Data.</strong> Loaded Capesize, Cb 0.85, breadth 45 m, static draught 17.6 m in the water at the bar (dock water allowance applied). Bar declared depth 18.2 m, survey three months old; port allowance for depth uncertainty 0.3 m. Predicted tide 2.4 m; port allows 0.2 m for tide error. Swell 1.0 m from ahead; port wave allowance 0.4 m. Ship upright. Port minimum net UKC 0.6 m. Channel 300 m wide. Pilot's planned speed 10 knots.</p>
+<ol>
+<li><strong>Water available:</strong> 18.2 + 2.4 − 0.3 − 0.2 = <strong>20.1 m</strong></li>
+<li><strong>Depth needed before squat:</strong> 17.6 + 0.4 (waves) + 0 (heel) = <strong>18.0 m</strong></li>
+<li><strong>Room for squat and net UKC:</strong> 20.1 − 18.0 = 2.1 m. Net UKC must be at least 0.6 m, so squat must not exceed <strong>1.5 m</strong>.</li>
+<li><strong>Squat at 10 knots:</strong> depth 18.2 + 2.4 = 20.6 m; S = (45 × 17.6) / (300 × 20.6) = 0.128; S^0.81 = 0.189; 10^2.08 = 120.2.
+   Full formula: 0.85 × 0.189 × 120.2 / 20 = <strong>0.97 m</strong>. Confined short form: 0.85 × 100 / 50 = <strong>1.70 m</strong>.</li>
+<li><strong>Decision:</strong> the full formula leaves 1.13 m net; the short form leaves only <strong>0.40 m, below the port minimum</strong>. At 8 knots the short form gives 0.85 × 64 / 50 = 1.09 m, leaving 1.01 m net. The Master proposes 8 knots across the bar; the pilot, who knows the port's own squat figure for this class at 10 knots is about 1.2 m, agrees.</li>
+</ol>
+<p>The two formulas differ by 0.73 m, more than the port's whole required net clearance. The pilot knows the bar; the Master knows the ship. Neither number is safe until both have looked at it.</p>
+<h2 id="three-quick-extras">Three quick extras</h2>
+<ul>
+<li><strong>Heel:</strong> extra draught at the bilge ≈ (B / 2) × sin θ. On a 45 m beam ship, 1° of list adds about <strong>0.39 m</strong>, 2° about 0.79 m. Remove any list before arrival.</li>
+<li><strong>River water:</strong> FWA (mm) = displacement / (4 × TPC); DWA = FWA × (1.025 − ρ) / 0.025. A Capesize of 200,000 t and TPC 125 has an FWA of 400 mm; in water of 1.005 she sinks 320 mm.</li>
+<li><strong>Which density?</strong> Use the draught in the water at <strong>the place where the limit applies</strong>. A limit set at a brackish bar is not checked with the density at a fresh-water berth upstream.</li>
+</ul>
+<h2 id="common-pitfalls">Common pitfalls</h2>
+<ul>
+<li>Squat worked out from speed over the ground. A head current adds squat.</li>
+<li>One formula, one answer. Plan for the larger estimate.</li>
+<li>Checking only the mean draught. Full ships squat by the head; check the bow.</li>
+<li>Sea-water draught in a river port. Apply the dock water allowance for the right place.</li>
+<li>An unnoticed list.</li>
+<li>Trusting old soundings without checking the survey date or zone of confidence.</li>
+<li>Wrong figures in the pre-arrival form: dynamic UKC systems calculate from what the ship declares.</li>
+</ul>
+<h2 id="the-ukc-sheet-before-the-pilot-boards">The UKC sheet: before the pilot boards</h2>
+<p>For each critical section (bars, dredged channels, berth pockets, shallow turns):</p>
+<ul>
+<li>☐ Least charted or declared depth, with survey date or CATZOC</li>
+<li>☐ Predicted height of tide at the planned time, and the port's tide error allowance</li>
+<li>☐ Static draught in the water at that place, both ends of the ship</li>
+<li>☐ List checked and removed</li>
+<li>☐ Squat at two or three speeds, full formula and short forms, method noted</li>
+<li>☐ Heel for any turn at speed; wave allowance in exposed water</li>
+<li>☐ Required net UKC applied</li>
+<li>☐ <strong>A maximum speed written on the plan for each section</strong></li>
+<li>☐ Compared with the pilot's intended speeds at the Master-pilot exchange</li>
+<li>☐ Echo-sounder shallow-water alarm set; watch officer briefed on the transducer position</li>
+</ul>
+<p>At the exchange, ask three questions: what speed the pilot intends through each critical section; what UKC the port requires and whether it includes squat; and whether his figure uses the ship's actual draught, density and trim. If the numbers do not work, say so then, before the ship is committed.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>MAIB, report on the grounding of <em>Queen Elizabeth 2</em>, Vineyard Sound, 7 August 1992.</li>
+<li>MAIB (1997), report of the investigation into the grounding of <em>Sea Empress</em>, Milford Haven, 15 February 1996.</li>
+<li>Barrass, C.B. (2004), <em>Ship Squat</em>; formulas as reported by Şerban &amp; Toma (2013).</li>
+<li>PIANC Working Group 49 (2014), <em>Harbour Approach Channels: Design Guidelines</em>.</li>
+</ul>
+<p><em>Illustrative figures. Not for navigation. Always apply the port's rules, the ship's own data and your own judgement.</em></p>
+<hr />
+<p><strong>From the book.</strong> This page is adapted from Chapter 6 of <a href="command-in-narrow-waters.html"><em>Command in Narrow Waters: Pilotage, Self-Pilotage, Rivers, Anchorages and the Law and Commerce of Pilot Waters</em></a> by Capt. John Winsome Munar (Master Mariner Guides, book 1). The chapter also covers port UKC rules, dynamic UKC systems such as Port Hedland and the Torres Strait, turning heel, wave response and more worked examples. Paperback (ISBN 9798142539861) and Kindle on <a href="https://www.amazon.com/dp/B0HRVX9W2P">Amazon</a>.</p>
+</main>
+</body>
+</html>
